@@ -30,6 +30,18 @@ describe "Tokaido::DNS::Table" do
       @table.add(string, "foo.tok", "127.0.0.1")
       @table.lookup(constant, "foo.tok").should == "127.0.0.1"
     end
+
+    it "supports removing #{string} records" do
+      @table.add(string, "foo.tok", "127.0.0.1")
+      @table.remove(string, "foo.tok")
+      @table.lookup(constant, "foo.tok").should == nil
+    end
+
+    it "supports removing #{constant} records" do
+      @table.add(string, "foo.tok", "127.0.0.1")
+      @table.remove(constant, "foo.tok")
+      @table.lookup(constant, "foo.tok").should == nil
+    end
   end
 
 end

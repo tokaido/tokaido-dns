@@ -11,6 +11,11 @@ module Tokaido
         @table[type][domain] = ip
       end
 
+      def remove(type, domain)
+        type = normalize(type)
+        @table[type].delete(domain)
+      end
+
       def lookup(type, domain)
         type = normalize(type)
         @table[type][domain]
