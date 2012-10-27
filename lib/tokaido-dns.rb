@@ -1,0 +1,1 @@
+require "tokaido/dns"
