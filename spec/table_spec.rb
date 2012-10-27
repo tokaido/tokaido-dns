@@ -23,12 +23,12 @@ describe "Tokaido::DNS::Table" do
   types.each do |constant, string|
     it "allows adding #{string} records" do
       @table.add(string, "foo.tok", "127.0.0.1")
-      @table.lookup(string, "foo.tok").should == "127.0.0.1"
+      @table.lookup(string, "foo.tok").should == ["127.0.0.1"]
     end
 
     it "supports lookup via #{constant}" do
       @table.add(string, "foo.tok", "127.0.0.1")
-      @table.lookup(constant, "foo.tok").should == "127.0.0.1"
+      @table.lookup(constant, "foo.tok").should == ["127.0.0.1"]
     end
 
     it "supports removing #{string} records" do
