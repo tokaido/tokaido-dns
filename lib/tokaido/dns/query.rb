@@ -27,6 +27,18 @@ module Tokaido
     class Answer
       attr_writer :data, :ttl
 
+      def initialize
+        @not_found = false
+      end
+
+      def not_found!
+        @not_found = true
+      end
+
+      def not_found?
+        @not_found
+      end
+
       def add_to_response(question, response)
         response.add_answer question.response_name, @ttl, question.response_class.new(*@data)
       end
@@ -53,11 +65,23 @@ module Tokaido
         response.aa = 1 # authoritative
         response.rd = @message.rd # recursion desired same as request
         response.ra = 0 # does not support recursion
-        response.rcode = 0 # no error (TODO: Error handling)
 
-        questions.each do |question|
+        not_found = false
+
+        answers = questions.map do |question|
           answer = Answer.new.tap { |a| yield question, a }
-          answer.add_to_response(question, response)
+          not_found = true if answer.not_found?
+          [ question, answer ]
+        end
+
+        if not_found
+          response.rcode = 3 # name error
+        else
+          response.rcode = 0 # no error
+
+          answers.each do |question, answer|
+            answer.add_to_response(question, response)
+          end
         end
 
         response

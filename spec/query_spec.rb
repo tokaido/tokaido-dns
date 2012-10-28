@@ -57,4 +57,19 @@ describe "Tokaido::DNS::Query.decode" do
       data.should == Resolv::DNS::Resource::IN::A.new("127.0.0.1")
     end
   end
+
+  it "knows how to punt on a request" do
+    message = @query.respond do |question, response|
+      response.not_found!
+    end
+
+    message.qr.should == 1 # response
+    message.opcode.should == 0 # same as request
+    message.aa.should == 1 # authoritative
+    message.rd.should == 1 # same as request
+    message.ra.should == 0 # recursion not available
+    message.rcode.should == 3 # name error
+
+    message.answer.size.should == 0
+  end
 end
