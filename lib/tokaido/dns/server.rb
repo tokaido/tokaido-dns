@@ -4,18 +4,16 @@ require "socket"
 module Tokaido
   module DNS
     class Server
-      LOCALHOST = "127.0.0.1".freeze
+      IPv4 = "127.0.0.1".freeze
+      IPv6 = Addrinfo.getaddrinfo(nil, 80, "PF_INET6", :STREAM)[0].ip_address.freeze
 
-      # Note: It is perfectly fine and desirable for the table to change
-      # throughout the lifetime of the server
-      def initialize(table, port)
-        @table = table
+      def initialize(port)
         @port = port
       end
 
       def start
         @server = UDPSocket.open
-        @server.bind LOCALHOST, port
+        @server.bind IPv4, @port
         Thread.new { process_requests }
       end
 
@@ -29,9 +27,15 @@ module Tokaido
           query, from = next_query
 
           message = query.respond do |question, response|
-            next unless question.type == "A"
+            if question.type == "A"
+              response.data = IPv4
+            elsif question.type == "AAAA"
+              response.data = IPv6
+            else
+              response.not_found!
+              next
+            end
 
-            response.data = LOCALHOST
             response.ttl = 60
           end
 
@@ -50,7 +54,7 @@ module Tokaido
 
       def send_to(to, data)
         # extract host, port
-        @server.send data, to[2], to[1]
+        @server.send data, 0, to[2], to[1]
       end
     end
   end

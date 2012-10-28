@@ -1,4 +1,5 @@
-require "resolv"
+# This turned out not to be necessary for Tokaido but it might
+# be useful for someone so I'm leaving it here.
 
 module Tokaido
   module DNS
