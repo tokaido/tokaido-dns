@@ -46,5 +46,15 @@ describe "Tokaido::DNS::Query.decode" do
     message.rd.should == 1 # same as request
     message.ra.should == 0 # recursion not available
     message.rcode.should == 0 # no error
+
+    message.answer.size.should == 1
+
+    message.answer.each do |answer|
+      name, ttl, data = answer
+
+      name.should == Resolv::DNS::Name.create("foo.tok.")
+      ttl.should == 60
+      data.should == Resolv::DNS::Resource::IN::A.new("127.0.0.1")
+    end
   end
 end
