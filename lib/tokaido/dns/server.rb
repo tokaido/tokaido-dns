@@ -12,13 +12,15 @@ module Tokaido
       end
 
       def start
+        puts "Starting DNS Server"
         @server = UDPSocket.open
         @server.bind IPv4, @port
         Thread.new { process_requests }
       end
 
       def stop
-
+        puts "Stopping DNS Server"
+        @server.close
       end
 
     private
