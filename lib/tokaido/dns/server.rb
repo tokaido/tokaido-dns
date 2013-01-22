@@ -51,15 +51,17 @@ module Tokaido
       end
 
       def next_query
-        # from is [ family, port, host, ip ]
-        data, from = @server.recvfrom_nonblock(1024)
-
-        [ Query.decode(data), from ]
-      rescue IO::WaitReadable
         loop do
-          break if @stopped
-          break if IO.select([@server], [], [], 1)
+          return if @stopped
+          next unless IO.select([@server], [], [], 1)
+
+          # from is [ family, port, host, ip ]
+          data, from = @server.recvfrom_nonblock(1024)
+
+          return [ Query.decode(data), from ]
         end
+      rescue IO::WaitReadable
+        retry
       end
 
       def send_to(to, data)
