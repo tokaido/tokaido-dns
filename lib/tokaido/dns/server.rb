@@ -9,6 +9,7 @@ module Tokaido
 
       def initialize(port)
         @port = port
+        @stopped = false
       end
 
       def start
@@ -20,13 +21,15 @@ module Tokaido
 
       def stop
         puts "Stopping DNS Server"
-        @server.close
+        @stopped = true
       end
 
     private
       def process_requests
         loop do
           query, from = next_query
+
+          break if @stopped
 
           message = query.respond do |question, response|
             if question.type == "A"
@@ -49,9 +52,14 @@ module Tokaido
 
       def next_query
         # from is [ family, port, host, ip ]
-        data, from = @server.recvfrom(1024)
+        data, from = @server.recvfrom_nonblock(1024)
 
         [ Query.decode(data), from ]
+      rescue IO::WaitReadable
+        loop do
+          break if @stopped
+          break if IO.select([@server], [], [], 1)
+        end
       end
 
       def send_to(to, data)
