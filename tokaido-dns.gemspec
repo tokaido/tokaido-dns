@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.version       = Tokaido::DNS::VERSION
   gem.authors       = ["Yehuda Katz"]
   gem.email         = ["wycats@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.description   = %q{A simple DNS server to be used in OS X in conjunction with a Tokaido installed /etc/resolver entry}
+  gem.summary       = gem.description
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($/)
